@@ -73,3 +73,63 @@ NO *rodar_dupla_esquerda(NO *raiz){
   raiz->dir = rodar_direita(raiz->dir);
   return rodar_esquerda(raiz);
 }
+
+NO *insere(NO *raiz, int chave, bool *h){
+  if(raiz == NULL){
+    raiz = (NO *)malloc(sizeof(NO));
+    if(raiz == NULL) return NULL;
+    raiz->chave = chave;
+    raiz->esq = raiz->dir = NULL;
+    raiz->FB = 0;
+    *h = true;
+  }else if(chave < raiz->chave){
+    raiz->esq = insere(raiz->esq, chave, h);
+    if(*h){
+      switch(raiz->FB){
+        case 1:
+          raiz->FB = 0;
+          *h = false;
+          break;
+        case 0:
+          raiz->FB = -1;
+          break;
+        case -1:
+          if(raiz->esq->FB == -1){
+            raiz = rodar_direita(raiz);
+            raiz->FB = 0;
+            raiz->dir->FB = 0;
+          }else{
+            raiz = rodar_dupla_direita(raiz);
+            raiz->FB = 0;
+          }
+          *h = false;
+          break;
+      }
+    }
+  }else if(chave > raiz->chave){
+    raiz->dir = insere(raiz->dir, chave, h);
+    if(*h){
+      switch(raiz->FB){
+        case -1:
+          raiz->FB = 0;
+          *h = false;
+          break;
+        case 0:
+          raiz->FB = 1;
+          break;
+        case 1:
+          if(raiz->dir->FB == 1){
+            raiz = rodar_esquerda(raiz);
+            raiz->FB = 0;
+            raiz->esq->FB = 0;
+          }else{
+            raiz = rodar_dupla_esquerda(raiz);
+            raiz->FB = 0;
+          }
+          *h = false;
+          break;
+      }
+    }
+  }
+  return raiz;
+}
